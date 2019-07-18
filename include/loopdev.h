@@ -25,6 +25,26 @@
 #define LOOP_SET_CAPACITY	0x4C07
 #define LOOP_SET_DIRECT_IO	0x4C08
 #define LOOP_SET_BLOCK_SIZE	0x4C09
+ 
+/*
+* IOCTL defined for hyperblock ---  enabled
+*/
+
+#define LOOP_SET_FD_MFILE               0x4C10
+#define LOOP_CLR_FD_MFILE               0x4C11
+#define LOOP_SET_STATUS_MFILE           0x4C12
+#define LOOP_GET_STATUS_MFILE           0x4C13
+#define LOOP_SET_STATUS64_MFILE         0x4C14
+#define LOOP_GET_STATUS64_MFILE         0x4C15
+/* 
+* IOCTL defined for hyperblock ---  to appear in new version of util-linux
+* note that following are only defined in kernel for now
+*/
+#define LOOP_CHANGE_FD_MFILE            0x4C16
+#define LOOP_SET_CAPACITY_MFILE         0x4C17
+#define LOOP_SET_DIRECT_IO_MFILE        0x4C18
+#define LOOP_SET_BLOCK_SIZE_MFILE       0x4C19
+
 
 /* /dev/loop-control interface */
 #ifndef LOOP_CTL_ADD
@@ -32,6 +52,13 @@
 # define LOOP_CTL_REMOVE	0x4C81
 # define LOOP_CTL_GET_FREE	0x4C82
 #endif
+
+
+#define INFO(msg) \
+    fprintf(stderr, "info: %s:%d: ", __FILE__, __LINE__); \
+    fprintf(stderr, "%s", msg);
+
+
 
 /*
  * loop_info.lo_flags
@@ -46,6 +73,17 @@ enum {
 
 #define LO_NAME_SIZE	64
 #define LO_KEY_SIZE	32
+ 
+//loop_mfile for  set_status loop_mfile_fds for set_fd
+struct loop_mfile {
+	uint8_t	mfcnt;
+	uint8_t	**filenames;
+};
+
+struct loop_mfile_fds {
+	uint8_t mfcnt;
+	int fds[0];
+};
 
 /*
  * Linux LOOP_{SET,GET}_STATUS64 ioctl struct
@@ -64,6 +102,7 @@ struct loop_info64 {
 	uint8_t		lo_crypt_name[LO_NAME_SIZE];
 	uint8_t		lo_encrypt_key[LO_KEY_SIZE];
 	uint64_t	lo_init[2];
+	struct		loop_mfile	mfile;	/* for hyperblock, backing multiple file info*/
 };
 
 #define LOOPDEV_MAJOR		7	/* loop major number */
@@ -107,6 +146,7 @@ struct loopdev_cxt {
 	struct path_cxt		*sysfs; /* pointer to /sys/dev/block/<maj:min>/ */
 	struct loop_info64	info;	/* for GET/SET ioctl */
 	struct loopdev_iter	iter;	/* scans /sys or /dev for used/free devices */
+	struct loop_mfile   mfile;
 };
 
 #define UL_LOOPDEVCXT_EMPTY { .fd = -1  }

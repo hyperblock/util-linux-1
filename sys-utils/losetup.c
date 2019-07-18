@@ -29,11 +29,13 @@
 
 enum {
 	A_CREATE = 1,		/* setup a new device */
+	A_CREATE_MULTI,         /* for hyperblock, create a new device based on multiple files*/
 	A_DELETE,		/* delete given device(s) */
 	A_DELETE_ALL,		/* delete all devices */
 	A_SHOW,			/* list devices */
 	A_SHOW_ONE,		/* print info about one device */
 	A_FIND_FREE,		/* find first unused */
+	A_MULTI_FILE,           /* for hyperblock, convert multiple lsm file to one block device*/
 	A_SET_CAPACITY,		/* set device capacity */
 	A_SET_DIRECT_IO,	/* set accessing backing file by direct io */
 	A_SET_BLOCKSIZE,	/* set logical block size of the loop device */
@@ -411,6 +413,7 @@ static void __attribute__((__noreturn__)) usage(void)
 	fputs(_(" -d, --detach <loopdev>...     detach one or more devices\n"), out);
 	fputs(_(" -D, --detach-all              detach all used devices\n"), out);
 	fputs(_(" -f, --find                    find first unused device\n"), out);
+-	fputs(_(" -m, --mfile                   find first unused device and use multiple file as backing file\n"), out);
 	fputs(_(" -c, --set-capacity <loopdev>  resize the device\n"), out);
 	fputs(_(" -j, --associated <file>       list all devices associated with <file>\n"), out);
 	fputs(_(" -L, --nooverlap               avoid possible conflict between devices\n"), out);
@@ -596,6 +599,10 @@ int main(int argc, char **argv)
 	int list = 0;
 	unsigned long use_dio = 0, set_dio = 0, set_blocksize = 0;
 
+
+	char **files = NULL;
+	size_t F_CNT = 0;
+
 	enum {
 		OPT_SIZELIMIT = CHAR_MAX + 1,
 		OPT_SHOW,
@@ -609,6 +616,7 @@ int main(int argc, char **argv)
 		{ "detach",       required_argument, NULL, 'd'           },
 		{ "detach-all",   no_argument,       NULL, 'D'           },
 		{ "find",         no_argument,       NULL, 'f'           },
+		{ "mfile",        no_argument,       NULL, 'm'           },
 		{ "nooverlap",    no_argument,       NULL, 'L'           },
 		{ "help",         no_argument,       NULL, 'h'           },
 		{ "associated",   required_argument, NULL, 'j'           },
@@ -647,7 +655,7 @@ int main(int argc, char **argv)
 	if (loopcxt_init(&lc, 0))
 		err(EXIT_FAILURE, _("failed to initialize loopcxt"));
 
-	while ((c = getopt_long(argc, argv, "ab:c:d:Dfhj:JlLno:O:PrvV",
+	while ((c = getopt_long(argc, argv, "ab:c:d:Dfmhj:JlLno:O:PrvV",
 				longopts, NULL)) != -1) {
 
 		err_exclusive_options(c, longopts, excl, excl_st);
@@ -682,6 +690,9 @@ int main(int argc, char **argv)
 			break;
 		case 'f':
 			act = A_FIND_FREE;
+			break;
+		case 'm':
+			act = A_MULTI_FILE;
 			break;
 		case 'J':
 			json = 1;
@@ -777,6 +788,24 @@ int main(int argc, char **argv)
 		if (optind < argc)
 			errx(EXIT_FAILURE, _("unexpected arguments"));
 	}
+ 
+	if (act == A_MULTI_FILE && optind < argc) {
+		/*
+		 * losetup -m <F_CNT file0 file1 ..file[F_CNT-1]>
+		 */
+		act = A_CREATE_MULTI;
+		F_CNT = (size_t)atoi(argv[optind-1]);
+		size_t i;
+		files = (char *)malloc( F_CNT * sizeof(char *));
+		for( i=0;i<F_CNT;i++) {
+			//printf("i is %d, optind is %d, F_CNT is %d\n",i,optind,F_CNT);
+			files[i] = argv[optind++];
+		}
+		
+		for( i=0;i<F_CNT;i++) {
+			//printf("files[%d] is %s\n",i,files[i]);
+		}
+	}
 
 	if (list && !act && optind == argc)
 		/*
@@ -847,6 +876,71 @@ int main(int argc, char **argv)
 				goto lo_set_dio;
 		}
 		break;
+
+	case A_CREATE_MULTI:
+	{
+		int hasdev = loopcxt_has_device(&lc);
+
+		if (hasdev && !is_loopdev(loopcxt_get_device(&lc)))
+			loopcxt_add_device(&lc);
+		do {
+			const char *errpre;
+
+			/* Note that loopcxt_{find_unused,set_device}() resets
+			 * loopcxt struct.
+			 */
+			if (!hasdev && (res = loopcxt_find_unused(&lc))) {
+				warnx(_("cannot find an unused loop device"));
+				break;
+			}
+			if (flags & LOOPDEV_FL_OFFSET)
+				loopcxt_set_offset(&lc, offset);
+			if (flags & LOOPDEV_FL_SIZELIMIT)
+				loopcxt_set_sizelimit(&lc, sizelimit);
+			if (lo_flags)
+				loopcxt_set_flags(&lc, lo_flags);
+			
+			if ((res = loopcxt_set_backing_files(&lc, F_CNT, files))) 			 {
+				warn(_("%s: failed to use backing file"), file);
+				break;
+			}
+			INFO("Before loopcxt_setup_device_mfile \n");
+			errno = 0;
+			res = loopcxt_setup_device_mfile(&lc);
+			INFO("After loopcxt_setup_device_mfile \n");
+			if (res == 0) {
+				/* success */
+				break;
+			}
+			else {
+				if (set_dio)
+					goto lo_set_dio;
+			}
+	
+			if (errno == EBUSY && !hasdev)
+				continue;
+
+			//err(EXIT_FAILURE, _("Abort here to debug ..."));
+			/* errors */
+			errpre = hasdev && loopcxt_get_fd(&lc) < 0 ?
+					 loopcxt_get_device(&lc) : file;
+			warn(_("%s: failed to set up loop device"), errpre);
+			INFO("1111\n");
+			break;
+		} while (hasdev == 0);
+
+		
+		free(lc.mfile.filenames);
+
+		if (res == 0) {
+			if (showdev)
+				printf("%s\n", loopcxt_get_device(&lc));
+			//warn_size(file, sizelimit);
+			//warn_size(file, sizelimit, offset, flags);
+		}
+		break;
+	}
+
 	case A_DELETE:
 		res = delete_loop(&lc);
 		while (optind < argc) {
