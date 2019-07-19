@@ -191,8 +191,8 @@ int loopcxt_init(struct loopdev_cxt *lc, int flags)
 		DBG(CXT, ul_debugobj(lc, "init: loop-control detected "));
 	}
 	
-	//to mark the use of mfile
-	lc->mfile.mfcnt = -1;
+	//use 255 as magic word to mark the use of mfile
+	lc->mfile.mfcnt = 255;
 	return 0;
 }
 
@@ -1682,8 +1682,8 @@ int loopcxt_delete_device(struct loopdev_cxt *lc)
 
 	if (fd < 0)
 		return -EINVAL;
-
-	if(lc->mfile.mfcnt!=-1){
+	//255 as magic word here to mark the use of mfile
+	if(lc->mfile.mfcnt!=255){
 		if (ioctl(fd, LOOP_CLR_FD_MFILE, 0) < 0) {
 			DBG(CXT, ul_debugobj(lc, "LOOP_CLR_FD_MFILE failed: %m"));
 			return -errno;
