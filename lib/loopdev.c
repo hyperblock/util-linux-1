@@ -192,7 +192,7 @@ int loopcxt_init(struct loopdev_cxt *lc, int flags)
 
 
 	//to mark the exist of mfile
-	lc->mfile.mfcnt=-1;
+	lc->mfile.mfcnt=255;
 
 	return 0;
 }
@@ -1508,7 +1508,7 @@ int loopcxt_delete_device(struct loopdev_cxt *lc)
 	int fd = loopcxt_get_fd(lc);
 	if (fd < 0)
 		return -EINVAL;
-	if(lc->mfile.mfcnt!=-1){
+	if(lc->mfile.mfcnt!=255){
 		if (ioctl(fd, LOOP_CLR_FD_MFILE, 0) < 0) {
 			DBG(CXT, ul_debugobj(lc, "LOOP_CLR_FD_MFILE failed: %m"));
 			return -errno;
