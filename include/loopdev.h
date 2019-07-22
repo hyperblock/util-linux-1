@@ -144,6 +144,7 @@ struct loopdev_cxt {
 	unsigned int	extra_check:1;	/* unusual stuff for iterator */
 	unsigned int	info_failed:1;	/* LOOP_GET_STATUS ioctl failed */
 	unsigned int    control_ok:1;	/* /dev/loop-control success */
+	unsigned int    direct_io:1;	/* open backing file with O_DIRECT */
 
 	struct path_cxt		*sysfs; /* pointer to /sys/dev/block/<maj:min>/ */
 	struct loop_info64	info;	/* for GET/SET ioctl */

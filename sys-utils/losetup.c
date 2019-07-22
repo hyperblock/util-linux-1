@@ -594,7 +594,7 @@ int main(int argc, char **argv)
 	int act = 0, flags = 0, no_overlap = 0, c;
 	char *file = NULL;
 	uint64_t offset = 0, sizelimit = 0, blocksize = 0;
-	int res = 0, showdev = 0, lo_flags = 0;
+	int res = 0, showdev = 0, lo_flags = 0, dio = 0;
 	char *outarg = NULL;
 	int list = 0;
 	unsigned long use_dio = 0, set_dio = 0, set_blocksize = 0;
@@ -732,6 +732,7 @@ int main(int argc, char **argv)
 			showdev = 1;
 			break;
 		case OPT_DIO:
+			dio = 1;
 			use_dio = set_dio = 1;
 			if (optarg)
 				use_dio = parse_switch(optarg, _("argument error"), "on", "off", NULL);
@@ -863,6 +864,10 @@ int main(int argc, char **argv)
 	if (outarg && string_add_to_idarray(outarg, columns, ARRAY_SIZE(columns),
 					 &ncolumns, column_name_to_id) < 0)
 		return EXIT_FAILURE;
+
+
+	if (act == A_CREATE && dio)
+		lc.direct_io = 1;
 
 	switch (act) {
 	case A_CREATE:

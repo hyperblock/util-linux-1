@@ -1322,7 +1322,7 @@ int loopcxt_setup_device_mfile(struct loopdev_cxt *lc)
 	mfds->mfcnt = n;
 
 	int dev_fd, mode = O_RDWR, rc = -1, cnt = 0;
-	int errsv = 0;
+	int errsv = 0, dio_mode = 0;
 	size_t i;
 	if (!lc || !*lc->device || !lc->mfile.filenames)
 		return -EINVAL;
@@ -1335,9 +1335,11 @@ int loopcxt_setup_device_mfile(struct loopdev_cxt *lc)
 	if (lc->info.lo_flags & LO_FLAGS_READ_ONLY)
 		mode = O_RDONLY;
 
+	if (lc->direct_io)
+		dio_mode = O_DIRECT;
 	
 	for(i=0;i<n;i++){
-		if ((mfds->fds[i]= open(lc->mfile.filenames[i], mode | O_CLOEXEC)) < 0) {
+		if ((mfds->fds[i]= open(lc->mfile.filenames[i], mode | dio_mode | O_CLOEXEC)) < 0) {
 			if (mode != O_RDONLY && (errno == EROFS || errno == EACCES))
 				mfds->fds[i] = open(lc->mfile.filenames[i], mode = O_RDONLY);
 
@@ -1364,6 +1366,9 @@ int loopcxt_setup_device_mfile(struct loopdev_cxt *lc)
 		lc->info.lo_flags &= ~LO_FLAGS_READ_ONLY;
 		lc->flags &= ~LOOPDEV_FL_RDONLY;
 	}
+
+	if (dio_mode)
+		lc->info.lo_flags |= LO_FLAGS_DIRECT_IO;
 
 	do {
 		errno = 0;
