@@ -64,6 +64,7 @@ static void loopdev_init_debug(void)
 	if (loopdev_debug_mask)
 		return;
 	__UL_INIT_DEBUG_FROM_ENV(loopdev, LOOPDEV_DEBUG_, 0, LOOPDEV_DEBUG);
+
 }
 
 /*
@@ -162,6 +163,7 @@ int loopcxt_init(struct loopdev_cxt *lc, int flags)
 		return -EINVAL;
 
 	loopdev_init_debug();
+
 	DBG(CXT, ul_debugobj(lc, "initialize context"));
 
 	memcpy(lc, &dummy, sizeof(dummy));

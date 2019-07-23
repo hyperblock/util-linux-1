@@ -917,11 +917,8 @@ int main(int argc, char **argv)
 				/* success */
 				break;
 			}
-			else {
-				if (set_dio)
-					goto lo_set_dio;
-			}
-	
+			
+			printf("after setup device res is %d\n",res);
 			if (errno == EBUSY && !hasdev)
 				continue;
 
@@ -930,7 +927,6 @@ int main(int argc, char **argv)
 			errpre = hasdev && loopcxt_get_fd(&lc) < 0 ?
 					 loopcxt_get_device(&lc) : file;
 			warn(_("%s: failed to set up loop device"), errpre);
-			INFO("1111\n");
 			break;
 		} while (hasdev == 0);
 
@@ -940,8 +936,8 @@ int main(int argc, char **argv)
 		if (res == 0) {
 			if (showdev)
 				printf("%s\n", loopcxt_get_device(&lc));
-			//warn_size(file, sizelimit);
-			//warn_size(file, sizelimit, offset, flags);
+			if (set_dio)
+				goto lo_set_dio;
 		}
 		break;
 	}
