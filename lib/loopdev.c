@@ -1176,7 +1176,6 @@ int loopcxt_set_backing_file(struct loopdev_cxt *lc, const char *filename)
 int loopcxt_set_backing_files(struct loopdev_cxt *lc, size_t fcnt, const char **filenames)
 {
 	unsigned int i;
-	printf("loopcxt_set_backing_files\n");
 	if (!lc)
 		return -EINVAL;
 
@@ -1186,7 +1185,6 @@ int loopcxt_set_backing_files(struct loopdev_cxt *lc, size_t fcnt, const char **
 	lc->info.mfile.filenames = (char **)malloc(fcnt*sizeof(char *));
 
 	for(i=0;i<fcnt;i++){
-
 		lc->mfile.filenames[i] = canonicalize_path(filenames[i]);
 		DBG(CXT, ul_debugobj(lc, "setting lc->filenames[%d] to %s\n ",i,lc->mfile.filenames[i]));
 
@@ -1194,7 +1192,6 @@ int loopcxt_set_backing_files(struct loopdev_cxt *lc, size_t fcnt, const char **
 		lc->info.mfile.filenames[i] = (char *)malloc(LO_NAME_SIZE *sizeof(char));
 		strncpy((char *)lc->info.mfile.filenames[i], lc->mfile.filenames[i], LO_NAME_SIZE);
 		lc->info.mfile.filenames[i][LO_NAME_SIZE- 1] = '\0';
-
 		DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %s\n ",i, lc->info.mfile.filenames[i]));
 	}
 
@@ -1320,7 +1317,7 @@ int loopcxt_setup_device_mfile(struct loopdev_cxt *lc)
 
 	int dev_fd, mode = O_RDWR, rc = -1, cnt = 0;
 	int errsv = 0, dio_mode = 0;
-	size_t i;
+	int  i;
 	if (!lc || !*lc->device || !lc->mfile.filenames)
 		return -EINVAL;
 
@@ -1335,10 +1332,15 @@ int loopcxt_setup_device_mfile(struct loopdev_cxt *lc)
 	if (lc->direct_io)
 		dio_mode = O_DIRECT;
 	
+	DBG(SETUP, ul_debugobj(lc, "dio_mode is %d",dio_mode));
 	for(i=0;i<n;i++){
+		printf("lc->mfile.filenames[i] is %s\n ",lc->mfile.filenames[i]);
 		if ((mfds->fds[i]= open(lc->mfile.filenames[i], mode | dio_mode | O_CLOEXEC)) < 0) {
 			if (mode != O_RDONLY && (errno == EROFS || errno == EACCES))
 				mfds->fds[i] = open(lc->mfile.filenames[i], mode = O_RDONLY);
+
+			printf("mfds->fds[%d] is %d\n", i, mfds->fds[i]);
+			printf("errno is %d\n", errno);
 
 			if (mfds->fds[i] < 0) {
 				DBG(SETUP, ul_debugobj(lc, "open backing file failed: %m"));
