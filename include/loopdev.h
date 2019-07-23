@@ -79,7 +79,7 @@ enum {
 //loop_mfile for  set_status loop_mfile_fds for set_fd
 struct loop_mfile {
 	uint8_t	mfcnt;
-	uint8_t	**filenames;
+	char	**filenames;
 };
 
 struct loop_mfile_fds {
@@ -208,6 +208,7 @@ extern int loopcxt_deinit_iterator(struct loopdev_cxt *lc);
 extern int loopcxt_next(struct loopdev_cxt *lc);
 
 extern int loopcxt_setup_device(struct loopdev_cxt *lc);
+extern int loopcxt_setup_device_mfile(struct loopdev_cxt *lc);
 extern int loopcxt_delete_device(struct loopdev_cxt *lc);
 
 extern int loopcxt_ioctl_status(struct loopdev_cxt *lc);
@@ -220,6 +221,7 @@ int loopcxt_set_sizelimit(struct loopdev_cxt *lc, uint64_t sizelimit);
 int loopcxt_set_blocksize(struct loopdev_cxt *lc, uint64_t blocksize);
 int loopcxt_set_flags(struct loopdev_cxt *lc, uint32_t flags);
 int loopcxt_set_backing_file(struct loopdev_cxt *lc, const char *filename);
+int loopcxt_set_backing_files(struct loopdev_cxt *lc, size_t fcnt, const char **filenames);
 
 extern char *loopcxt_get_backing_file(struct loopdev_cxt *lc);
 extern int loopcxt_get_backing_devno(struct loopdev_cxt *lc, dev_t *devno);

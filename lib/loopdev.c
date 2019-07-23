@@ -64,7 +64,6 @@ static void loopdev_init_debug(void)
 	if (loopdev_debug_mask)
 		return;
 	__UL_INIT_DEBUG_FROM_ENV(loopdev, LOOPDEV_DEBUG_, 0, LOOPDEV_DEBUG);
-
 }
 
 /*
@@ -1176,7 +1175,7 @@ int loopcxt_set_backing_file(struct loopdev_cxt *lc, const char *filename)
  */
 int loopcxt_set_backing_files(struct loopdev_cxt *lc, size_t fcnt, const char **filenames)
 {
-	size_t i;
+	unsigned int i;
 	printf("loopcxt_set_backing_files\n");
 	if (!lc)
 		return -EINVAL;
@@ -1196,11 +1195,7 @@ int loopcxt_set_backing_files(struct loopdev_cxt *lc, size_t fcnt, const char **
 		strncpy((char *)lc->info.mfile.filenames[i], lc->mfile.filenames[i], LO_NAME_SIZE);
 		lc->info.mfile.filenames[i][LO_NAME_SIZE- 1] = '\0';
 
-		DBG(CXT, ul_debugobj(lc, "set backing file=%s", lc->info.mfile.filenames[i]));
 		DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %s\n ",i, lc->info.mfile.filenames[i]));
-		DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %lx\n ",i, lc->info.mfile.filenames[i]));
-		DBG(CXT, ul_debugobj(lc, "addr of info.mfile.filenames[%d] is %lx\n ",i, &lc->info.mfile.filenames[i]));
-		DBG(CXT, ul_debugobj(lc, "info.mfile.filenames is %lx\n ",lc->info.mfile.filenames));
 	}
 
 	return 0;

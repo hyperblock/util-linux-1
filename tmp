@@ -1,0 +1,121 @@
+lib/loopdev.c:1176:5: warning: no previous prototype for ‘loopcxt_set_backing_files’ [-Wmissing-prototypes]
+ int loopcxt_set_backing_files(struct loopdev_cxt *lc, size_t fcnt, const char **filenames)
+     ^
+lib/loopdev.c: In function ‘loopcxt_set_backing_files’:
+lib/loopdev.c:1184:22: warning: assignment from incompatible pointer type [-Wincompatible-pointer-types]
+  lc->mfile.filenames = (char **)malloc(fcnt* sizeof(char *));
+                      ^
+lib/loopdev.c:1186:27: warning: assignment from incompatible pointer type [-Wincompatible-pointer-types]
+  lc->info.mfile.filenames = (char **)malloc(fcnt*sizeof(char *));
+                           ^
+lib/loopdev.c:1190:26: warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
+   lc->mfile.filenames[i] = canonicalize_path(filenames[i]);
+                          ^
+In file included from lib/loopdev.c:43:0:
+lib/loopdev.c:1191:28: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘size_t {aka long unsigned int}’ [-Wformat=]
+   DBG(CXT, ul_debugobj(lc, "setting lc->filenames[%d] to %s\n ",i,lc->mfile.filenames[i]));
+                            ^
+./include/debug.h:67:4: note: in definition of macro ‘__UL_DBG’
+    x; \
+    ^
+lib/loopdev.c:1191:3: note: in expansion of macro ‘DBG’
+   DBG(CXT, ul_debugobj(lc, "setting lc->filenames[%d] to %s\n ",i,lc->mfile.filenames[i]));
+   ^
+lib/loopdev.c:1194:31: warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
+   lc->info.mfile.filenames[i] = (char *)malloc(LO_NAME_SIZE *sizeof(char));
+                               ^
+lib/loopdev.c:1195:48: warning: pointer targets in passing argument 2 of ‘strncpy’ differ in signedness [-Wpointer-sign]
+   strncpy((char *)lc->info.mfile.filenames[i], lc->mfile.filenames[i], LO_NAME_SIZE);
+                                                ^
+In file included from /usr/include/features.h:367:0,
+                 from /usr/include/stdio.h:27,
+                 from lib/loopdev.c:23:
+/usr/include/x86_64-linux-gnu/bits/string3.h:123:1: note: expected ‘const char * restrict’ but argument is of type ‘uint8_t * {aka unsigned char *}’
+ __NTH (strncpy (char *__restrict __dest, const char *__restrict __src,
+ ^
+In file included from lib/loopdev.c:43:0:
+lib/loopdev.c:1199:28: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘size_t {aka long unsigned int}’ [-Wformat=]
+   DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %s\n ",i, lc->info.mfile.filenames[i]));
+                            ^
+./include/debug.h:67:4: note: in definition of macro ‘__UL_DBG’
+    x; \
+    ^
+lib/loopdev.c:1199:3: note: in expansion of macro ‘DBG’
+   DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %s\n ",i, lc->info.mfile.filenames[i]));
+   ^
+lib/loopdev.c:1200:28: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘size_t {aka long unsigned int}’ [-Wformat=]
+   DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %lx\n ",i, lc->info.mfile.filenames[i]));
+                            ^
+./include/debug.h:67:4: note: in definition of macro ‘__UL_DBG’
+    x; \
+    ^
+lib/loopdev.c:1200:3: note: in expansion of macro ‘DBG’
+   DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %lx\n ",i, lc->info.mfile.filenames[i]));
+   ^
+lib/loopdev.c:1200:28: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 4 has type ‘uint8_t * {aka unsigned char *}’ [-Wformat=]
+   DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %lx\n ",i, lc->info.mfile.filenames[i]));
+                            ^
+./include/debug.h:67:4: note: in definition of macro ‘__UL_DBG’
+    x; \
+    ^
+lib/loopdev.c:1200:3: note: in expansion of macro ‘DBG’
+   DBG(CXT, ul_debugobj(lc, "setting lc->info.mfile.filenames[%d] to %lx\n ",i, lc->info.mfile.filenames[i]));
+   ^
+lib/loopdev.c:1201:28: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘size_t {aka long unsigned int}’ [-Wformat=]
+   DBG(CXT, ul_debugobj(lc, "addr of info.mfile.filenames[%d] is %lx\n ",i, &lc->info.mfile.filenames[i]));
+                            ^
+./include/debug.h:67:4: note: in definition of macro ‘__UL_DBG’
+    x; \
+    ^
+lib/loopdev.c:1201:3: note: in expansion of macro ‘DBG’
+   DBG(CXT, ul_debugobj(lc, "addr of info.mfile.filenames[%d] is %lx\n ",i, &lc->info.mfile.filenames[i]));
+   ^
+lib/loopdev.c:1201:28: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 4 has type ‘uint8_t ** {aka unsigned char **}’ [-Wformat=]
+   DBG(CXT, ul_debugobj(lc, "addr of info.mfile.filenames[%d] is %lx\n ",i, &lc->info.mfile.filenames[i]));
+                            ^
+./include/debug.h:67:4: note: in definition of macro ‘__UL_DBG’
+    x; \
+    ^
+lib/loopdev.c:1201:3: note: in expansion of macro ‘DBG’
+   DBG(CXT, ul_debugobj(lc, "addr of info.mfile.filenames[%d] is %lx\n ",i, &lc->info.mfile.filenames[i]));
+   ^
+lib/loopdev.c:1202:28: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 3 has type ‘uint8_t ** {aka unsigned char **}’ [-Wformat=]
+   DBG(CXT, ul_debugobj(lc, "info.mfile.filenames is %lx\n ",lc->info.mfile.filenames));
+                            ^
+./include/debug.h:67:4: note: in definition of macro ‘__UL_DBG’
+    x; \
+    ^
+lib/loopdev.c:1202:3: note: in expansion of macro ‘DBG’
+   DBG(CXT, ul_debugobj(lc, "info.mfile.filenames is %lx\n ",lc->info.mfile.filenames));
+   ^
+lib/loopdev.c: At top level:
+lib/loopdev.c:1318:5: warning: no previous prototype for ‘loopcxt_setup_device_mfile’ [-Wmissing-prototypes]
+ int loopcxt_setup_device_mfile(struct loopdev_cxt *lc)
+     ^
+lib/loopdev.c: In function ‘loopcxt_setup_device_mfile’:
+lib/loopdev.c:1342:11: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+  for(i=0;i<n;i++){
+           ^
+lib/loopdev.c:1343:27: warning: pointer targets in passing argument 1 of ‘open’ differ in signedness [-Wpointer-sign]
+   if ((mfds->fds[i]= open(lc->mfile.filenames[i], mode | dio_mode | O_CLOEXEC)) < 0) {
+                           ^
+In file included from /usr/include/fcntl.h:289:0,
+                 from lib/loopdev.c:27:
+/usr/include/x86_64-linux-gnu/bits/fcntl2.h:41:1: note: expected ‘const char *’ but argument is of type ‘uint8_t * {aka unsigned char *}’
+ open (const char *__path, int __oflag, ...)
+ ^
+lib/loopdev.c:1345:25: warning: pointer targets in passing argument 1 of ‘open’ differ in signedness [-Wpointer-sign]
+     mfds->fds[i] = open(lc->mfile.filenames[i], mode = O_RDONLY);
+                         ^
+In file included from /usr/include/fcntl.h:289:0,
+                 from lib/loopdev.c:27:
+/usr/include/x86_64-linux-gnu/bits/fcntl2.h:41:1: note: expected ‘const char *’ but argument is of type ‘uint8_t * {aka unsigned char *}’
+ open (const char *__path, int __oflag, ...)
+ ^
+lib/loopdev.c:1421:11: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+  for(i=0;i<n;i++){
+           ^
+lib/loopdev.c:1432:11: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+  for(i=0;i<n;i++){
+           ^
+

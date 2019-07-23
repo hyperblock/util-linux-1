@@ -413,7 +413,7 @@ static void __attribute__((__noreturn__)) usage(void)
 	fputs(_(" -d, --detach <loopdev>...     detach one or more devices\n"), out);
 	fputs(_(" -D, --detach-all              detach all used devices\n"), out);
 	fputs(_(" -f, --find                    find first unused device\n"), out);
--	fputs(_(" -m, --mfile                   find first unused device and use multiple file as backing file\n"), out);
+	fputs(_(" -m, --mfile                   find first unused device and use multiple file as backing file\n"), out);
 	fputs(_(" -c, --set-capacity <loopdev>  resize the device\n"), out);
 	fputs(_(" -j, --associated <file>       list all devices associated with <file>\n"), out);
 	fputs(_(" -L, --nooverlap               avoid possible conflict between devices\n"), out);
@@ -797,7 +797,7 @@ int main(int argc, char **argv)
 		act = A_CREATE_MULTI;
 		F_CNT = (size_t)atoi(argv[optind-1]);
 		size_t i;
-		files = (char *)malloc( F_CNT * sizeof(char *));
+		files = (char **)malloc( F_CNT * sizeof(char *));
 		for( i=0;i<F_CNT;i++) {
 			//printf("i is %d, optind is %d, F_CNT is %d\n",i,optind,F_CNT);
 			files[i] = argv[optind++];
@@ -905,7 +905,7 @@ int main(int argc, char **argv)
 			if (lo_flags)
 				loopcxt_set_flags(&lc, lo_flags);
 			
-			if ((res = loopcxt_set_backing_files(&lc, F_CNT, files))) 			 {
+			if ((res = loopcxt_set_backing_files(&lc, F_CNT, (const char **)files))) 			 {
 				warn(_("%s: failed to use backing file"), file);
 				break;
 			}
